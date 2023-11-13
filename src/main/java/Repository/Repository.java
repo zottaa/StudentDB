@@ -5,15 +5,11 @@ import org.hibernate.Session;
 import org.hibernate.Transaction;
 
 import javax.persistence.Query;
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Predicate;
-import javax.persistence.criteria.Root;
 import java.io.Serializable;
 import java.util.List;
 
 public interface Repository<T, ID extends Serializable> {
-    public T findById(Class<T> entityClass, ID entityId);
+    public T findById(ID entityId);
 
     public void save(T entity);
 
@@ -21,13 +17,18 @@ public interface Repository<T, ID extends Serializable> {
 
     public void delete(T entity);
 
-    public List<T> findAll(Class<T> entityClass);
+    public List<T> findAll();
 
-    public List<T> searchByField(Class<T> entityClass, String field, String keyword);
+    public List<T> searchByField(String field, String keyword);
 
     abstract class Abstract<T, ID extends Serializable> implements Repository<T, ID> {
+        private final Class<T> entityClass;
+
+        Abstract(Class<T> entityClass) {
+            this.entityClass = entityClass;
+        }
         @Override
-        public T findById(Class<T> entityClass, ID entityId) {
+        public T findById(ID entityId) {
             try (Session session = HibernateSessionFactory.getSessionFactory().openSession()) {
                 return session.get(entityClass, entityId);
             } catch (Exception e) {
@@ -70,7 +71,7 @@ public interface Repository<T, ID extends Serializable> {
         }
 
         @Override
-        public List<T> findAll(Class<T> entityClass) {
+        public List<T> findAll() {
             try (Session session = HibernateSessionFactory.getSessionFactory().openSession()) {
                 String hql = "From " + entityClass.getSimpleName();
                 return session.createQuery(hql).list();
@@ -81,7 +82,7 @@ public interface Repository<T, ID extends Serializable> {
         }
 
         @Override
-        public List<T> searchByField(Class<T> entityClass, String field, String keyword) {
+        public List<T> searchByField(String field, String keyword) {
             try (Session session = HibernateSessionFactory.getSessionFactory().openSession()) {
                 String hql = "FROM " + entityClass.getSimpleName() +
                         " WHERE lower(" + field + ") LIKE :keyword";
