@@ -36,7 +36,7 @@ public class Performance {
     @Column(name = "subject")
     private String subject;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "student_id")
     private Student student;
 

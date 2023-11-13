@@ -28,21 +28,14 @@ public class Parent {
     @Column(name = "relation_degree")
     private String relationDegree;
 
-
-//    @JoinTable(
-//        name = "students_to_parents",
-//        joinColumns = {@JoinColumn(name = "parent_id")},
-//        inverseJoinColumns = {@JoinColumn(name = "student_id")}
-//)
-    @ManyToMany(mappedBy = "parentList")
+    @ManyToMany(mappedBy = "parentList", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     private List<Student> studentList;
 
     public Parent() {
 
     }
 
-    public Parent(int id, String lastname, String name, String surname, String address, String relationDegree) {
-        this.id = id;
+    public Parent(String lastname, String name, String surname, String address, String relationDegree) {
         this.lastname = lastname;
         this.name = name;
         this.surname = surname;
@@ -52,9 +45,9 @@ public class Parent {
     }
 
     public void addStudent(Student student) {
-        student.addParent(this);
         if (!studentList.contains(student)) {
             studentList.add(student);
+            student.addParent(this);
         }
     }
 

@@ -1,5 +1,8 @@
 package Model;
 
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
+
 import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -34,10 +37,11 @@ public class Student {
     @Column(name = "entry_year")
     private String entryYear;
 
-    @OneToMany(mappedBy = "student", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "student", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
+    @Fetch(FetchMode.SUBSELECT)
     private List<Performance> performanceList;
 
-    @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @JoinTable(
             name = "students_to_parents",
             joinColumns = {@JoinColumn(name = "student_id")},
@@ -67,9 +71,9 @@ public class Student {
     }
 
     public void addParent(Parent parent) {
-        parent.addStudent(this);
         if (!parentList.contains(parent)) {
             parentList.add(parent);
+            parent.addStudent(this);
         }
     }
 
